@@ -30,7 +30,11 @@ def read_cifar10(filename_queue):
     record_bytes = tf.decode_raw(value, tf.uint8)
 
     result.label = tf.cast(tf.strided_slice(record_bytes, [label_bytes], [label_bytes + image_bytes]), [result.depth, result.height, result.width])
-
+    depth_major = tf.reshape(
+    tf.strided_slice(record_bytes, [label_bytes],
+                    [label_bytes + image_bytes]),
+    [result.depth, result.height, result.width])
+    #depth_major = tf.reshape(tf.strided_slice(record_bytes, [label_bytes], [label_bytes + image_bytes]), [result.depth, result.height, result.width])
     result.uint8image = tf.transpose(depth_major, [1,2,0])
     return result
 
