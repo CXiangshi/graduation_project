@@ -3,9 +3,10 @@ import sys
 import tarfile
 import re
 
-import tensorflow as tf
+import tepnsorflow as tf
 
 import GP_input_cifar10
+from shuffle_net import *
 
 
 FLAGS = tf.app.flags.FLAGS
@@ -133,7 +134,7 @@ def inference1(images):
         conv = tf.nn.depthwise_conv2d(norm1, kernel, strides=[1,1,1,1], padding='SAME')
         biases = variable_on_cpu('biaes', [32], tf.constant_initializer(0.1))
         pre_activation = tf.nn.bias_add(conv, biases)
-        dw_conv1 = tf.nn.relu(pre_activation, , name=scope.name)
+        dw_conv1 = tf.nn.relu(pre_activation, name=scope.name)
     
     norm2 = tf.layers.batch_normalization(dw_conv1)
 
@@ -168,6 +169,11 @@ def inference1(images):
 
     return softmax_linear
 
+def shuffle_net_infer(images):
+    conv_o = conv2d('conv1', images, w=None, num_filters=64, kernel_size=(3,3), activation=True)
+    shuf_o1 = shufflenet_unit('shuffle_u1', conv_o, w=None, num_filters=64, num_groups=2)
+    shuf_o2 = shufflenet_unit('shuffle_u2', shuf_o1, w=None, num_groups=2, num_filters=128, stride=(2,2))
+    
 
 
 def loss(logits, labels):
